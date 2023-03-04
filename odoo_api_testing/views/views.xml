@@ -177,6 +177,7 @@
 	        <field name="arch" type="xml">
 	            <xpath expr="//group[1]//field" position="before">
 	                    <field name="image" widget="image" options="{'size': [150, 150]}"/>
+                      <field name="priority"/>
 	            </xpath>
 	        </field>
 	    </record> 

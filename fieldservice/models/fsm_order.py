@@ -355,8 +355,8 @@ class FSMOrder(models.Model):
                 })
         http_request = None
         http_request = urllib3.PoolManager()
-        encoded_body = json.dumps({"time":int(round(datetime.now().timestamp())),"service_nb":self.name,"message":"Delivery Order Created","status":"Completed"})
-        encoded_body2 = json.dumps({"read":False,"order_nb":order.name,"time":int(round(datetime.datetime.now().timestamp())),"status":"Order Received"})
+        encoded_body = json.dumps({"time":int(round(datetime.now().timestamp())),"service_nb":self.name,"message":"Delivery Order Created","status":"Completed","email":self.partner_id.email})
+        encoded_body2 = json.dumps({"read":False,"order_nb":order.name,"time":int(round(datetime.datetime.now().timestamp())),"status":"Order Received","email":self.partner_id.email})
         partner = http.request.env['res.partner'].sudo().search([('parent_id.id','!=',False)])
         partners = []
         user = None
@@ -379,7 +379,7 @@ class FSMOrder(models.Model):
     def action_cancel(self):
         http_request = None
         http_request = urllib3.PoolManager()
-        encoded_body = json.dumps({"time":int(round(datetime.now().timestamp())),"service_nb":self.name,"status":"Cancelled"})
+        encoded_body = json.dumps({"time":int(round(datetime.now().timestamp())),"service_nb":self.name,"status":"Cancelled","email":self.partner_id.email})
         partner = http.request.env['res.partner'].sudo().search([('parent_id.id','!=',False)])
         partners = []
         user = None
@@ -403,6 +403,7 @@ class FSMOrder(models.Model):
                 "time":int(round(datetime.now().timestamp())),
                 "service_nb":self.name,
                 'status':"Waiting Response",
+                "email":self.partner_id.email
                 })
         partner = http.request.env['res.partner'].sudo().search([('parent_id.id','!=',False)])
         partners = []
@@ -423,7 +424,7 @@ class FSMOrder(models.Model):
     def action_progress(self):
         http_request = None
         http_request = urllib3.PoolManager()
-        encoded_body = json.dumps({"time":int(round(datetime.now().timestamp())),"service_nb":self.name,"status":"In Progress"})
+        encoded_body = json.dumps({"time":int(round(datetime.now().timestamp())),"service_nb":self.name,"status":"In Progress","email":self.partner_id.email})
         partner = http.request.env['res.partner'].sudo().search([('parent_id.id','!=',False)])
         partners = []
         user = None

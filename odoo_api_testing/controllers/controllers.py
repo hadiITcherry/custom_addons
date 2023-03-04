@@ -62,6 +62,8 @@ class OdooApiTesting(http.Controller):
                     mobile = value['mobile']
             if http.request.env["res.users"].sudo().search([("login", "ilike", email)]):
                 return http.Response (json.dumps({"jsonrpc":"2.0","id":None,"error":"Failed, user already exist!"}),headers = {'content-type':'application/json'})
+            if http.request.env["res.users"].sudo().search([("mobile", "ilike", mobile)]):
+                    return http.Response (json.dumps({"jsonrpc":"2.0","id":None,"error":"Failed, mobile number already exist!"}),headers = {'content-type':'application/json'})       
             user = http.request.env['res.users'].sudo().create({
                     'name':name,
                     'password':user_password,
@@ -92,7 +94,7 @@ class OdooApiTesting(http.Controller):
             user = http.request.env['res.users'].sudo().search([('id','=',http.request.session.uid)])
             cart = http.request.env['cart'].sudo().search([('partner_id.id','=',user.partner_id.id)])
             return http.Response(json.dumps({"jsonrpc":"2.0","id":None,"result":{
-                "is_vip":user.partner_id.is_vip,
+                "vip":user.partner_id.vip,
                 "have_items_in_cart":True if cart else False,
                 "partner_id":user.partner_id.id,
                 "user_id":user.id,
@@ -193,6 +195,8 @@ class OdooApiTesting(http.Controller):
                 json_object = json.loads(http.request.httprequest.data)
                 for key,value in json_object.items():
                     mobile = value['mobile']
+                if http.request.env["res.users"].sudo().search([("mobile", "=", mobile)]):
+                    return http.Response (json.dumps({"jsonrpc":"2.0","id":None,"error":"Failed, mobile number already exist!"}),headers = {'content-type':'application/json'})       
                 for record in user:
                     partner = http.request.env['res.partner'].sudo().search([('id','=',user.partner_id.id)])
                     for p in partner:
@@ -249,6 +253,7 @@ class OdooApiTesting(http.Controller):
             product_details = {}
             status = None
             for product in products:
+                wishlist = http.request.env['wishlist'].sudo().search([('product_id.id','=',product.id)])
                 attributes = http.request.env['product.template.attribute.value'].sudo().search([('product_tmpl_id.id','=',product.id)])
                 images = http.request.env['product.image'].sudo().search([('product_tmpl_id.id','=',product.id)])
                 if product.qty_available <= 0:
@@ -260,6 +265,7 @@ class OdooApiTesting(http.Controller):
                     'name':product.name,
                     'is_vip':product.vip,
                     'is_on_sale':product.sale,
+                    'is_in_wishlist':True if wishlist else False,
                     'is_vip_charge_product':True if product.name == "vip charge" else False,
                     'regular_price':product.list_price,
                     'new_price':product.vip_price if product.vip == True else product.sale_price if product.sale == True else 0.0,
@@ -1520,7 +1526,7 @@ class OdooApiTesting(http.Controller):
                     'new_price':o.vip_price if o.vip == True else o.sale_price if o.sale == True else 0.0,
                     "image":('data:image/png;base64,'+(o.image_1920).decode("UTF-8")) if (o.image_1920) else ""
                 }) 
-            return http.Response(json.dumps({"jsonrpc":"2.0","id":None,"result":{"Services":services,"categories":categories,"vip_products":vip_products,"brands":brands,"bundles":bundles,"challenges":challenges,"hot_deals":hot_deals,"best_selling":sorted_products,"offers":offers}}),headers=headers)
+            return http.Response(json.dumps({"jsonrpc":"2.0","id":None,"result":{"services":services,"categories":categories,"vip_products":vip_products,"brands":brands,"bundles":bundles,"challenges":challenges,"hot_deals":hot_deals,"best_selling":sorted_products,"offers":offers}}),headers=headers)
         except Exception as e:
             return http.Response(json.dumps({"jsonrpc":"2.0","id":None,"error":str(e)}),headers=headers)
 

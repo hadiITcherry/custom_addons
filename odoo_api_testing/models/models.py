@@ -83,7 +83,7 @@ class OdooApiTesting(models.Model):
                 ids.append(int(i))
         for p in not_valid_ids:
                 if p not in ids:
-                        # http_request.request("PUT", "https://quico-tech-default-rtdb.europe-west1.firebasedatabase.app/VIP/"+str(p)+"/"+".json",body=encoded_body1,headers={"content-type":"application/json","auth":"AIzaSyDaoLknXHqhJY_zcKlAxV2UX0tnl0OdM5w"})
+                        http_request.request("PUT", "https://quico-tech-default-rtdb.europe-west1.firebasedatabase.app/VIP/"+str(p)+"/"+".json",body=encoded_body1,headers={"content-type":"application/json","auth":"AIzaSyDaoLknXHqhJY_zcKlAxV2UX0tnl0OdM5w"})
                         print("yes")
                 else:
                         for i in json_body:
@@ -91,11 +91,11 @@ class OdooApiTesting(models.Model):
                                         if (json_body[i]['title'] == "Vip Expiration"):
                                                 pass
                                         else:
-                                                # http_request.request("PUT", "https://quico-tech-default-rtdb.europe-west1.firebasedatabase.app/VIP/"+str(p)+"/"+".json",body=encoded_body1,headers={"content-type":"application/json","auth":"AIzaSyDaoLknXHqhJY_zcKlAxV2UX0tnl0OdM5w"})
+                                                http_request.request("PUT", "https://quico-tech-default-rtdb.europe-west1.firebasedatabase.app/VIP/"+str(p)+"/"+".json",body=encoded_body1,headers={"content-type":"application/json","auth":"AIzaSyDaoLknXHqhJY_zcKlAxV2UX0tnl0OdM5w"})
                                                 print("yes")
         for p in valid_ids:
                 if p not in ids:
-                        # http_request.request("PUT", "https://quico-tech-default-rtdb.europe-west1.firebasedatabase.app/VIP/"+str(p)+"/"+".json",body=encoded_body2,headers={"content-type":"application/json","auth":"AIzaSyDaoLknXHqhJY_zcKlAxV2UX0tnl0OdM5w"})
+                        http_request.request("PUT", "https://quico-tech-default-rtdb.europe-west1.firebasedatabase.app/VIP/"+str(p)+"/"+".json",body=encoded_body2,headers={"content-type":"application/json","auth":"AIzaSyDaoLknXHqhJY_zcKlAxV2UX0tnl0OdM5w"})
                         print ("yes")       
                 else:
                         for j in json_body:
@@ -103,7 +103,7 @@ class OdooApiTesting(models.Model):
                                         if (json_body[j]['title'] == "Vip Subscription"):
                                                 pass
                                         else:
-                                                # http_request.request("PUT", "https://quico-tech-default-rtdb.europe-west1.firebasedatabase.app/VIP/"+str(p)+"/"+".json",body=encoded_body2,headers={"content-type":"application/json","auth":"AIzaSyDaoLknXHqhJY_zcKlAxV2UX0tnl0OdM5w"})       
+                                                http_request.request("PUT", "https://quico-tech-default-rtdb.europe-west1.firebasedatabase.app/VIP/"+str(p)+"/"+".json",body=encoded_body2,headers={"content-type":"application/json","auth":"AIzaSyDaoLknXHqhJY_zcKlAxV2UX0tnl0OdM5w"})       
                                                 print ("yes")
 class VipSubscribe(models.Model):
         _name="vip.subscribe"
@@ -153,6 +153,7 @@ class ProductCategory(models.Model):
         _inherit='product.category'
 
         image = fields.Image('product.category',attachment=False)
+        priority = fields.Integer("Priority")
 
 class Cart(models.Model):
         _name = "cart"
@@ -218,9 +219,9 @@ class ButtonConfirmSale(models.Model):
         _inherit = 'sale.order'
 
         def action_confirm(self):
-                # http_request = None
-                # http_request = urllib3.PoolManager()
-                # encoded_body = None
+                http_request = None
+                http_request = urllib3.PoolManager()
+                encoded_body = None
                 user = None
                 for order in self:
                         stock = self.env['stock.picking'].sudo().search([('origin','=',order.name)])
@@ -237,8 +238,8 @@ class ButtonConfirmSale(models.Model):
                                 user = self.env['res.users'].sudo().search([('partner_id.id','=',current_id)])
                         else:
                                 user = self.env['res.users'].sudo().search([('partner_id.id','=',order.partner_id.id)])
-                        # encoded_body = json.dumps({"time":int(round(datetime.datetime.now().timestamp())),"order_nb":order.name,"status":"Packaging"})
-                        # http_request.request("PUT", "https://quico-tech-default-rtdb.europe-west1.firebasedatabase.app/Orders/"+str(user.id)+"/"+str(order.id)+".json",body=encoded_body,headers={"content-type":"application/json","auth":"AIzaSyDaoLknXHqhJY_zcKlAxV2UX0tnl0OdM5w"})
+                        encoded_body = json.dumps({"time":int(round(datetime.datetime.now().timestamp())),"order_nb":order.name,"status":"Packaging","email":self.user.partner_id.email})
+                        http_request.request("PUT", "https://quico-tech-default-rtdb.europe-west1.firebasedatabase.app/Orders/"+str(user.id)+"/"+str(order.id)+".json",body=encoded_body,headers={"content-type":"application/json","auth":"AIzaSyDaoLknXHqhJY_zcKlAxV2UX0tnl0OdM5w"})
                 res = super(SaleOrder, self).action_confirm()
                 return res
 
@@ -246,9 +247,9 @@ class ButtonStockPickingValidate(models.Model):
         _inherit = 'stock.picking'
 
         def button_validate(self):
-                # http_request = None
-                # http_request = urllib3.PoolManager()
-                # encoded_body = None
+                http_request = None
+                http_request = urllib3.PoolManager()
+                encoded_body = None
                 user = None
                 for orderr in self:
                         sorders = self.env['sale.order'].sudo().search([])
@@ -263,8 +264,8 @@ class ButtonStockPickingValidate(models.Model):
                                                 user = self.env['res.users'].sudo().search([('partner_id.id','=',current_id)])
                                         else:
                                                 user = self.env['res.users'].sudo().search([('partner_id.id','=',orderr.partner_id.id)])
-                                        # encoded_body = json.dumps({"order_nb":so.name,"time":int(round(datetime.datetime.now().timestamp())),"status":"Delivered"})
-                                        # http_request.request("PUT", "https://quico-tech-default-rtdb.europe-west1.firebasedatabase.app/Orders/"+str(user.id)+"/"+str(so.id)+".json",body=encoded_body,headers={"content-type":"application/json","auth":"AIzaSyDaoLknXHqhJY_zcKlAxV2UX0tnl0OdM5w"})
+                                        encoded_body = json.dumps({"order_nb":so.name,"time":int(round(datetime.datetime.now().timestamp())),"status":"Delivered","email":self.user.partner_id.email})
+                                        http_request.request("PUT", "https://quico-tech-default-rtdb.europe-west1.firebasedatabase.app/Orders/"+str(user.id)+"/"+str(so.id)+".json",body=encoded_body,headers={"content-type":"application/json","auth":"AIzaSyDaoLknXHqhJY_zcKlAxV2UX0tnl0OdM5w"})
                 res = super(ButtonStockPickingValidate,self).button_validate()
                 return res
        
@@ -272,9 +273,9 @@ class OnTheWay(models.Model):
     _inherit = 'stock.picking'
 
     def on_the_way(self):
-        # http_request = None
-        # http_request = urllib3.PoolManager()
-        # encoded_body = None
+        http_request = None
+        http_request = urllib3.PoolManager()
+        encoded_body = None
         for orderr in self:
                 orderr.write({
                       'state':'on_the_way'  
@@ -291,16 +292,16 @@ class OnTheWay(models.Model):
                                         user = self.env['res.users'].sudo().search([('partner_id.id','=',current_id)])
                                 else:
                                         user = self.env['res.users'].sudo().search([('partner_id.id','=',orderr.partner_id.id)])
-                                # encoded_body = json.dumps({"order_nb":so.name,"time":int(round(datetime.datetime.now().timestamp())),"status":"On the Way"})
-                                # http_request.request("PUT", "https://quico-tech-default-rtdb.europe-west1.firebasedatabase.app/Orders/"+str(user.id)+"/"+str(so.id)+".json",body=encoded_body,headers={"content-type":"application/json","auth":"AIzaSyDaoLknXHqhJY_zcKlAxV2UX0tnl0OdM5w"})
+                                encoded_body = json.dumps({"order_nb":so.name,"time":int(round(datetime.datetime.now().timestamp())),"status":"On the Way","email":self.user.partner_id.email})
+                                http_request.request("PUT", "https://quico-tech-default-rtdb.europe-west1.firebasedatabase.app/Orders/"+str(user.id)+"/"+str(so.id)+".json",body=encoded_body,headers={"content-type":"application/json","auth":"AIzaSyDaoLknXHqhJY_zcKlAxV2UX0tnl0OdM5w"})
 
 class ButtonCancel(models.Model):
         _inherit = 'sale.order'
 
         def action_cancel(self):
-                # http_request = None
-                # http_request = urllib3.PoolManager()
-                # encoded_body = None
+                http_request = None
+                http_request = urllib3.PoolManager()
+                encoded_body = None
                 user = None
                 for order in self:
                         order.write({
@@ -315,8 +316,8 @@ class ButtonCancel(models.Model):
                                 user = self.env['res.users'].sudo().search([('partner_id.id','=',current_id)])
                         else:
                                 user = self.env['res.users'].sudo().search([('partner_id.id','=',order.partner_id.id)])
-                        # encoded_body = json.dumps({"order_nb":order.name,"time":int(round(datetime.datetime.now().timestamp())),"status":"Cancelled"})
-                        # http_request.request("PUT", "https://quico-tech-default-rtdb.europe-west1.firebasedatabase.app/Orders/"+str(user.id)+"/"+str(order.id)+".json",body=encoded_body,headers={"content-type":"application/json","auth":"AIzaSyDaoLknXHqhJY_zcKlAxV2UX0tnl0OdM5w"})
+                        encoded_body = json.dumps({"order_nb":order.name,"time":int(round(datetime.datetime.now().timestamp())),"status":"Cancelled","email":self.user.partner_id.email})
+                        http_request.request("PUT", "https://quico-tech-default-rtdb.europe-west1.firebasedatabase.app/Orders/"+str(user.id)+"/"+str(order.id)+".json",body=encoded_body,headers={"content-type":"application/json","auth":"AIzaSyDaoLknXHqhJY_zcKlAxV2UX0tnl0OdM5w"})
                 res = super(SaleOrder, self).action_cancel()
                 return res
 
